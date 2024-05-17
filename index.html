@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html ng-app="currencyConverterApp">
+<head>
+  <title>Currency Converter</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .converter-container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    .input-group {
+      margin-bottom: 10px;
+    }
+    label {
+      margin-right: 5px;
+    }
+    input[type="number"] {
+      padding: 5px;
+      width: 100px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    select {
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    button {
+      padding: 5px 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    p {
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="converter-container" ng-controller="CurrencyConverterCtrl">
+  <h1>Currency Converter</h1>
+  
+  <div class="input-group">
+    <label for="amount">Amount:</label>
+    <input type="number" ng-model="amount" placeholder="Enter amount">
+  </div>
+  
+  <div class="input-group">
+    <label for="fromCurrency">From:</label>
+    <select ng-model="fromCurrency" ng-options="currency for currency in currencies">
+    </select>
+  </div>
+  
+  <div class="input-group">
+    <label for="toCurrency">To:</label>
+    <select ng-model="toCurrency" ng-options="currency for currency in currencies">
+    </select>
+  </div>
+  
+  <button ng-click="convert()">Convert</button>
+  
+  <p ng-show="convertedAmount">Converted Amount: {{ convertedAmount }}</p>
+</div>
+
+<script>
+angular.module('currencyConverterApp', [])
+.controller('CurrencyConverterCtrl', function($scope, $http) {
+  $scope.amount = 1;
+  $scope.fromCurrency = 'USD';
+  $scope.toCurrency = 'EUR';
+  $scope.convertedAmount = null;
+  $scope.currencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'INR', 'AUD']; // Add more currencies as needed
+  
+  $scope.convert = function() {
+    $http.get('https://api.exchangerate-api.com/v4/latest/' + $scope.fromCurrency)
+      .then(function(response) {
+        var rates = response.data.rates;
+        var rate = rates[$scope.toCurrency];
+        $scope.convertedAmount = $scope.amount * rate;
+      })
+      .catch(function(error) {
+        console.log("Error:", error);
+      });
+  };
+});
+</script>
+
+</body>
+</html>
